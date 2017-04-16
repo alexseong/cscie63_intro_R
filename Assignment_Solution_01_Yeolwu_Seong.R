@@ -1,0 +1,102 @@
+V <-c(7, 2, 1, 0, 3, -1, -3, 4)
+V
+
+A <- matrix(V, nrow = 4, ncol = 2)
+A
+
+AT <- t(A)
+AT
+
+AAT <- A %*% AT
+ATA <- AT %*% A
+AAT
+ATA
+
+dim(AAT)
+dim(ATA)
+
+solve(AAT)
+solve(ATA)
+solve(ATA)%*%ATA
+
+V <- c(V, -2)
+V
+
+B <- matrix(V, nrow = 3, ncol = 3)
+B
+
+Binv <- round(solve(B))
+Binv
+
+B%*%Binv
+Binv%*%B
+
+eg <- eigen(B)
+eg
+
+evector <- round(t(eg$vectors))
+evector[1,]
+evector[2,]
+evector[3,]
+
+C <- cbind(evector[1,], evector[2,], evector[3,])
+C
+
+B%*%C
+C%*%B
+
+dimnames(B) <- list(c("Row1", "Row2", "Row3"), c("Col1", "Col2", "Col3"))
+B
+
+B.df <- data.frame(B)
+B.df
+class(B.df)
+
+setwd("/Users/alexseong/OneDrive/Education/Harvard/cscie63/week1_01292016/")
+PCData <- read.csv("2006Data.csv")
+head(PCData)
+Power <- PCData$Power
+Temperature <- PCData$Temperature
+Day.Hour <- PCData$Hour
+
+plot(Temperature, Power, xlab = "Temperature", ylab = "Power Consuption", main = "Temperature vs Power Consumption")
+plot(Day.Hour, Power, xlab = "Hour of Day", ylab = "Power Consuption", main = "Hour of Day vs Power Consumption")
+
+boxplot(Power ~ Day.Hour, xlab = "Hour of Day", ylab = "Power Consuption", main = "Power Consumption by Hour of Day")
+
+Temperature.cut <- cut(Temperature, breaks, right = FALSE)
+Temperature.freq <- table(Temperature.cut)
+Temperature.freq
+Power.mean <- tapply(Power, Temperature.cut, mean)
+Power.mean
+Power.min <- tapply(Power, Temperature.cut, min)
+Power.min
+Power.max <- tapply(Power, Temperature.cut, max)
+Power.max
+Temperature.level <- levels(Temperature.cut)
+Temperature.level
+
+plot(factor(Temperature.level), Power.mean, ylim = c(0, 100))
+points(factor(Temperature.level), Power.mean, pch = 19, col = "blue")
+points(factor(Temperature.level), Power.max, pch = 19, col = "red")
+points(factor(Temperature.level), Power.min, pch = 19, col = "green")
+title(xlab = "Temperature", ylab = "Power Consumption", main = "Power Consumption by Temperature")
+legend("bottomright", c("Max", "Average", "Min"), pch = c(19, 19, 19), col = c("red", "blue", "green"))
+
+midpoints <- function(x, dp=2)
+{
+   lower <- as.numeric(gsub(",.*","",gsub("\\(|\\[|\\)|\\]","", x)));
+   upper <- as.numeric(gsub(".*,","",gsub("\\(|\\[|\\)|\\]","", x)));
+   return(round(lower+(upper-lower)/2, dp))
+}
+ 
+power.mean <- data.frame(temperature = midpoints(Temperature.level), mean = Power.mean)
+power.max <- data.frame(temperature = midpoints(Temperature.level), max = Power.max)
+power.min <- data.frame(temperature = midpoints(Temperature.level), min = Power.min)
+
+power.mean.mat <- data.matrix(power.mean[complete.cases(power.mean),])
+power.max.mat <- data.matrix(power.max[complete.cases(power.max),])
+power.min.mat <- data.matrix(power.min[complete.cases(power.min),])
+
+cov(power.mean.mat)
+
